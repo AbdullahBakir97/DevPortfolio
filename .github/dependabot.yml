@@ -1,38 +1,57 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-    groups:
-      actions:
-        patterns:
-          - '*'
-
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    versioning-strategy: increase
     groups:
-      types:
+      lint-format:
         patterns:
-          - '@types/*'
-      tooling:
+          - "@biomejs/*"
+      typecheck:
         patterns:
-          - 'turbo'
-          - '@biomejs/*'
-          - 'vitest'
-          - '@changesets/*'
-          - 'typescript'
-      runtime:
+          - "typescript"
+          - "@types/*"
+        exclude-patterns:
+          - "@types/node"
+      test:
         patterns:
-          - '@octokit/*'
-          - '@actions/*'
-          - 'zod'
-          - 'commander'
-          - 'eta'
-          - 'satori'
-          - '@resvg/*'
-          - '@react-pdf/*'
-          - 'pino'
+          - "vitest"
+          - "@vitest/*"
+          - "msw"
+      octokit:
+        patterns:
+          - "@octokit/*"
+      actions-toolkit:
+        patterns:
+          - "@actions/*"
+      docs:
+        patterns:
+          - "astro"
+          - "@astrojs/*"
+          - "starlight*"
+          - "sharp"
+      react-pdf-stack:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@react-pdf/*"
+          - "satori"
+          - "@resvg/*"
+    ignore:
+      - dependency-name: "@types/node"
+        versions:
+          - ">=21"
+      - dependency-name: "@vercel/ncc"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      gh-actions-minor-patch:
+        update-types:
+          - minor
+          - patch

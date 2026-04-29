@@ -42,6 +42,20 @@ pnpm changeset
 
 The Action entrypoint is bundled with `@vercel/ncc` to `dist/index.js` at the repo root. CI runs `pnpm verify-dist` and fails if `dist/` is out of date relative to the source.
 
+## Updating `@vercel/ncc`
+
+`@vercel/ncc` is intentionally excluded from Dependabot. Dependabot cannot
+rebuild `dist/index.js` after bumping ncc, so its PRs would always trip the
+bundle-presence gate. To update ncc:
+
+1. `pnpm --filter @devportfolio/action add -D @vercel/ncc@latest`
+2. `pnpm --filter @devportfolio/action build`
+3. Commit both `package.json` / `pnpm-lock.yaml` and the regenerated `dist/`.
+4. Open a PR titled `chore(deps): bump @vercel/ncc to <version>`.
+
+The release workflow re-bundles on Linux before tagging, so the bundle that
+ships to the Marketplace is always deterministic regardless of the dev OS.
+
 ## Filing issues
 
 Please include:
