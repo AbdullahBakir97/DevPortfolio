@@ -1,12 +1,14 @@
 # DevPortfolio
 
-[![CI](https://github.com/AbdullahBakir97/devportfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdullahBakir97/devportfolio/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/AbdullahBakir97/devportfolio/actions/workflows/codeql.yml/badge.svg)](https://github.com/AbdullahBakir97/devportfolio/actions/workflows/codeql.yml)
+[![Marketplace](https://img.shields.io/badge/marketplace-DevPortfolio-blue)](https://github.com/marketplace/actions/devportfolio)
+[![CI](https://github.com/AbdullahBakir97/DevPortfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdullahBakir97/DevPortfolio/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/AbdullahBakir97/DevPortfolio/actions/workflows/codeql.yml/badge.svg)](https://github.com/AbdullahBakir97/DevPortfolio/actions/workflows/codeql.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Marketplace](https://img.shields.io/badge/marketplace-DevPortfolio-purple)](https://github.com/marketplace/actions/devportfolio)
 [![Node 20 LTS](https://img.shields.io/badge/node-20.18.0%20LTS-339933?logo=node.js&logoColor=white)](.nvmrc)
 
-Generate a living portfolio from your GitHub activity — README sections, JSON Resume, PDF CV, and SVG stat cards — in a single workflow run.
+Generate a verifiable professional portfolio from your GitHub history — README section, JSON Resume, PDF CV, and SVG stat cards — in a single workflow run.
+
+> **Privacy & scope.** Uses only `public_repo` and `read:user`. No data leaves your runner.
 
 ## Quickstart (60s)
 
@@ -29,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: AbdullahBakir97/devportfolio@v1
+      - uses: AbdullahBakir97/DevPortfolio@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 ```
