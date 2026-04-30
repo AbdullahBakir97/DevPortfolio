@@ -98,7 +98,13 @@ describe('employerVerifiedContextCheck', () => {
     // The noise domain must NOT appear in either matched or unmatched.
     expect(findings[0]?.metadata.unmatchedDomains).toEqual(['personal.dev']);
     const unmatched = findings[0]?.metadata.unmatchedDomains as string[];
-    expect(unmatched.some((d) => d.endsWith('users.noreply.github.com'))).toBe(false);
+    // Use exact-match / proper-subdomain check, not bare endsWith — matches
+    // the source-side guard against "evilusers.noreply.github.com" spoofing.
+    expect(
+      unmatched.some(
+        (d) => d === 'users.noreply.github.com' || d.endsWith('.users.noreply.github.com'),
+      ),
+    ).toBe(false);
   });
 
   it('exposes matchedDomains, unmatchedDomains, avgSignatureRatio in metadata', () => {

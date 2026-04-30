@@ -146,9 +146,11 @@ function extractDomain(email: string): string | null {
 }
 
 function isNoiseDomain(domain: string): boolean {
+  // Match only on exact equality or proper subdomain (with leading dot).
+  // A bare endsWith(suffix) would falsely match attacker-controlled
+  // hosts like "evilusers.noreply.github.com" (no dot boundary).
   for (const suffix of NOISE_DOMAIN_SUFFIXES) {
     if (domain === suffix || domain.endsWith(`.${suffix}`)) return true;
-    if (domain.endsWith(suffix)) return true;
   }
   return false;
 }
