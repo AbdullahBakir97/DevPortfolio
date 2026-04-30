@@ -12,3 +12,16 @@ weights:
 projects:
   pinned_first: true
   max: 6
+audit:
+  ignore:
+    # The profile repo is meta — it doesn't need a standalone LICENSE
+    # or test directory. Bootstrap-* and 2050-* are early HTML/CSS
+    # toys, not portfolio-grade.
+    repos:
+      - "AbdullahBakir97/AbdullahBakir97"
+      - "AbdullahBakir97/Bootstrap-*"
+      - "AbdullahBakir97/2050-*"
+    # archive-suggestion is informational and fires often on a long
+    # history. Useful in the JSON artifact, noisy in the Markdown.
+    categories:
+      - archive-suggestion
