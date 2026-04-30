@@ -6,4 +6,3 @@
   "installCommand": "echo 'install handled in buildCommand'",
   "ignoreCommand": "git diff --quiet HEAD^ HEAD -- apps/docs/ packages/"
 }
-
