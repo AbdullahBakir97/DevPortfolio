@@ -13,10 +13,10 @@
     "bundle": "pnpm build && ncc build dist/index.js -o ../../dist --minify --license licenses.txt --target es2022 && node ./scripts/copy-templates.mjs"
   },
   "dependencies": {
-    "@actions/cache": "4.0.0",
-    "@actions/core": "1.11.1",
-    "@actions/exec": "1.1.1",
-    "@actions/github": "6.0.0",
+    "@actions/cache": "6.0.0",
+    "@actions/core": "3.0.1",
+    "@actions/exec": "3.0.0",
+    "@actions/github": "9.1.1",
     "@portfoliocraft/core": "workspace:*",
     "@portfoliocraft/renderers": "workspace:*"
   },
