@@ -93,6 +93,10 @@ outputs:
     description: 'Total number of audit findings.'
   audit-fail-on-result:
     description: 'pass / fail / not-evaluated based on audit-fail-on.'
+  commit-sha:
+    description: 'SHA of the commit pushed back to the repo when commit=true. Empty string when no commit was made.'
+  commit-skipped-reason:
+    description: 'Empty when a commit was made; otherwise one of: commit-disabled | dry-run | fork-pr | no-changes | no-paths.'
 
 runs:
   using: 'node20'

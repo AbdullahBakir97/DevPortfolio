@@ -45,6 +45,8 @@ Then in your `README.md`, drop the markers wherever you want generated content:
 
 That's it. The next run inserts your stack, top projects, activity summary, and a generation receipt between the markers.
 
+> **Permissions.** The default `commit: true` makes the action push regenerated artifacts back to your repo. That requires `permissions: contents: write` on the calling workflow (already shown in the snippet above). Without it, `git push` returns 403 and the run fails. Set `commit: false` if you only want artifacts as workflow outputs.
+
 ## What gets generated
 
 | Artifact      | Path (default)        | Source                                        |
