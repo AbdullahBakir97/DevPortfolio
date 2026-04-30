@@ -4,5 +4,5 @@
   "outputDirectory": "dist",
   "framework": "astro",
   "installCommand": "echo 'install handled in buildCommand'",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- apps/docs/ packages/"
+  "ignoreCommand": "bash -c 'cd ../.. && git diff --quiet HEAD^ HEAD -- apps/docs/ packages/'"
 }

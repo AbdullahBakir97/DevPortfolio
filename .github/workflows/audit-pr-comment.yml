@@ -1,0 +1,57 @@
+name: Audit PR comment
+
+# Runs the audit on every PR open / push and posts the rendered Markdown
+# as a sticky comment on the PR. Sticky = updated in place on every push,
+# never duplicated. The audit-fail-on input is intentionally empty so a
+# noisy audit never blocks merge — humans read the comment, decide.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: audit-pr-comment-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run PortfolioCraft audit (dogfood)
+        # Use the local checkout so this exercises the audit code at the
+        # PR's HEAD, not the published @v1. Catches regressions before
+        # the next release.
+        uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          user: AbdullahBakir97
+          mode: audit
+          config-file: examples/abdullahbakir97/.portfoliocraft.yml
+          # Skip portfolio outputs in audit-only mode.
+          output-readme: ''
+          output-json: ''
+          output-pdf: ''
+          output-svg-dir: ''
+          audit-output-md: audit.md
+          audit-output-json: audit.json
+          audit-fail-on: ''
+          commit: false
+          dry-run: false
+
+      - name: Post audit as sticky PR comment
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: portfoliocraft-audit
+          path: audit.md
