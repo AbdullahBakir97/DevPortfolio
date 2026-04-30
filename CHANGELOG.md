@@ -5,6 +5,24 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] — 2026-04-30
+
+### Fixed
+- **The `commit` and `commit-message` Action inputs were declared since v0.1.0 but never wired** — `run.ts` had no git logic, so artifacts were written to the runner's filesystem and discarded when the runner shut down. Anyone setting `commit: true` since launch was getting a successful run that committed nothing. **This was silent data loss.** Fixed by adding a real `commitArtifacts` step that:
+  - Configures the commit identity to `github-actions[bot]`.
+  - Stages only the artifacts the run actually wrote (no over-staging).
+  - Skips silently with a structured reason when the diff is empty, on fork PRs, or when the input is `false`.
+  - Pushes to `HEAD:${GITHUB_HEAD_REF || GITHUB_REF_NAME}` so the commit lands on the source branch.
+- Required workflow permission is now documented prominently: `permissions: contents: write` is needed on the calling workflow for the commit step. Without it, `git push` returns a 403 and the run fails.
+
+### Added
+- New Action outputs: `commit-sha` (the pushed commit SHA when applicable, otherwise empty) and `commit-skipped-reason` (one of `commit-disabled | dry-run | fork-pr | no-changes | no-paths`).
+- 7 new tests in `packages/action/test/commit.test.ts` covering the commit flow with injected `exec` doubles — opt-out, dry-run, no-paths, fork-pr, no-changes, push-event, and pull_request-event paths.
+
+### Notes
+- This is a backwards-compatible patch release. Workflows that set `commit: false` (or the default `true` with `dry-run: true`) keep working unchanged. Workflows that set `commit: true` and expected commits were silently broken before; they now do what the documentation always promised.
+- The profile-repo dogfood at `AbdullahBakir97/AbdullahBakir97` (added in v0.2 work) had `commit: true` but never produced `.portfoliocraft/`. The next daily cron after v0.3.1 ships will populate it.
+
 ## [0.3.0] — 2026-04-30
 
 Verifiable signal. Replaces v0.2's age-based heuristics with timeline / label / signature evidence. Additive — existing v0.1 / v0.2 workflows continue working unchanged.
@@ -84,6 +102,7 @@ Initial release.
 ### Security
 - Action requests minimum scopes: `public_repo` and `read:user`. No data leaves the runner.
 
+[0.3.1]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.3.1
 [0.3.0]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.3.0
 [0.2.0]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.2.0
 [0.1.0]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.1.0
