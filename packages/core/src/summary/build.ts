@@ -231,6 +231,34 @@ const DOMAIN_NOUN_PHRASE_ACADEMIC: Record<Domain, string> = {
   unknown: 'Aspiring software engineer',
 };
 
+/**
+ * Lowercase phrase form of a domain — for use in mid-sentence prose like
+ * "an active machine-learning project" or "3 backend projects". Centralised so
+ * we never leak the raw enum value (`ml`, `devops`) into rendered text.
+ */
+export const DOMAIN_DISPLAY: Record<Domain, string> = {
+  backend: 'backend',
+  frontend: 'frontend',
+  devops: 'DevOps',
+  ml: 'machine-learning',
+  mobile: 'mobile',
+  unknown: 'general',
+};
+
+/**
+ * Title-case form of a domain — for headings like "**Machine Learning** (2
+ * repositories): …" or case-study "Domain" rows. Same single source of truth
+ * as DOMAIN_DISPLAY so any future domain only needs a one-place update.
+ */
+export const DOMAIN_TITLE: Record<Domain, string> = {
+  backend: 'Backend',
+  frontend: 'Frontend',
+  devops: 'DevOps',
+  ml: 'Machine Learning',
+  mobile: 'Mobile',
+  unknown: 'General',
+};
+
 function buildHeadline(report: PortfolioReport, academic: boolean): string {
   const dominant = dominantDomain(report.projects);
   const phrase = (academic ? DOMAIN_NOUN_PHRASE_ACADEMIC : DOMAIN_NOUN_PHRASE)[dominant];
@@ -371,7 +399,7 @@ function depthSentence(
   topTopics: string[],
 ): string {
   const noun = repoCount === 1 ? 'project' : 'projects';
-  const domainWord = domain === 'unknown' ? 'general' : domain;
+  const domainWord = DOMAIN_DISPLAY[domain];
   const langClause =
     primaryLanguages.length > 0 ? `in ${joinAnd(primaryLanguages)}` : 'across mixed languages';
   const topicClause = topTopics.length > 0 ? ` covering ${topTopics.join(', ')}` : '';

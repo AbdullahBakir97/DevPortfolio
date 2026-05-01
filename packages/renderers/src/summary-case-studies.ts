@@ -1,4 +1,4 @@
-import type { Domain, ProjectCaseStudy } from '@portfoliocraft/core';
+import { DOMAIN_DISPLAY, type Domain, type ProjectCaseStudy } from '@portfoliocraft/core';
 
 const MONTH_ABBREVIATIONS: readonly string[] = [
   'Jan',
@@ -126,9 +126,25 @@ function formatOverview(study: ProjectCaseStudy): string {
   if (study.description !== null && study.description.trim().length > 0) {
     return study.description.trim();
   }
+  // Fallback when the repo has no description. Use DOMAIN_DISPLAY (lowercase
+  // phrase) so we never leak the raw enum value into prose, and pick the
+  // article from the domain phrase's first letter (e.g. 'an ML' wouldn't read
+  // right as 'a ML' — but DOMAIN_DISPLAY['ml'] is 'machine-learning' so the
+  // article is 'a' anyway). Keep the helper inline; this is the only spot.
+  const domainPhrase = DOMAIN_DISPLAY[study.domain];
+  const article = startsWithVowelSoundLocal(domainPhrase) ? 'An' : 'A';
   const lang = study.primaryLanguage ?? study.topLanguages[0] ?? null;
-  if (lang !== null) return `A ${study.domain} project in ${lang}.`;
-  return `A ${study.domain} project.`;
+  if (lang !== null) return `${article} ${domainPhrase} project in ${lang}.`;
+  return `${article} ${domainPhrase} project.`;
+}
+
+/** Local copy of the article-helper used by summary-uni; kept inline to avoid
+ *  a third file just for one shared utility. v0.5 may extract to a renderer
+ *  helpers module if a fourth caller appears. */
+function startsWithVowelSoundLocal(s: string): boolean {
+  if (s.length === 0) return false;
+  const c = s.charAt(0).toLowerCase();
+  return c === 'a' || c === 'e' || c === 'i' || c === 'o' || c === 'u';
 }
 
 /**
