@@ -89,7 +89,12 @@ function renderOpening(uni: UniSummary): string[] {
   const topDomains = collectTopDomains(uni);
   const domainClause = formatDomainClause(topDomains);
 
-  let opener = `I'm a ${headlineFragment} with ${repoCount} public ${pluralize(repoCount, 'repository', 'repositories')} on GitHub`;
+  // "a" vs "an": the rephrased role-noun is lowercase, so we just need to
+  // check the first letter for a vowel sound. This is good enough for the
+  // controlled set of role nouns the builder produces (backend, frontend,
+  // devops, ml, mobile, software / aspiring-prefixed variants).
+  const article = startsWithVowelSound(headlineFragment) ? 'an' : 'a';
+  let opener = `I'm ${article} ${headlineFragment} with ${repoCount} public ${pluralize(repoCount, 'repository', 'repositories')} on GitHub`;
   if (domainClause !== null) {
     opener += ` ${domainClause}`;
   }
@@ -104,15 +109,26 @@ function renderOpening(uni: UniSummary): string[] {
 }
 
 function rephraseHeadline(headline: string): string {
-  // Lowercase the first letter so it reads naturally after "I'm a/an" and
-  // strip trailing dots if the builder added them. Use a non-regex loop —
-  // a /\.+$/ pattern would be polynomial against pathological input
-  // (CodeQL flagged this); slice-while-endsWith is O(n) worst-case.
-  let trimmed = headline.trim();
+  // Builder emits a `·`-delimited spec like:
+  //   "Aspiring backend engineer · Python, TypeScript · 85 public repos · 241 commits"
+  // We only want the first segment as the role-noun ("aspiring backend engineer")
+  // — the rest is metadata that doesn't graft onto "I'm a/an ...".
+  //
+  // Strip trailing dots without a regex (CodeQL: a /\.+$/ pattern is polynomial
+  // against pathological input; slice-while-endsWith is O(n) worst-case).
+  const firstSegment = headline.split(' · ')[0] ?? headline;
+  let trimmed = firstSegment.trim();
   while (trimmed.endsWith('.')) trimmed = trimmed.slice(0, -1);
   if (trimmed.length === 0) return 'developer';
   const first = trimmed.charAt(0).toLowerCase();
   return first + trimmed.slice(1);
+}
+
+/** True if the next "I'm a/an" article should be "an". Cheap consonant-y check. */
+function startsWithVowelSound(s: string): boolean {
+  if (s.length === 0) return false;
+  const c = s.charAt(0).toLowerCase();
+  return c === 'a' || c === 'e' || c === 'i' || c === 'o' || c === 'u';
 }
 
 function collectTopDomains(uni: UniSummary): string[] {
@@ -144,36 +160,11 @@ function formatDomainClause(domains: string[]): string | null {
 }
 
 function renderTrajectoryEntry(entry: LearningTrajectoryEntry): string[] {
-  const out: string[] = [];
-  out.push(`**${entry.year}**: ${entry.summary}`);
-
-  // Second sentence: repo count + tech context. Languages and domains live
-  // on the entry itself; we only mention what's actually populated so the
-  // sentence stays factually anchored.
-  const repoNoun = pluralize(entry.reposCreated, 'repository', 'repositories');
-  let line = `Created ${entry.reposCreated} ${repoNoun}`;
-  const langClause = formatPrimaryListClause(entry.primaryLanguages, 'in');
-  const domainClause = formatPrimaryListClause(entry.primaryDomains, 'across');
-  if (langClause !== null && domainClause !== null) {
-    line += ` ${langClause}, ${domainClause}`;
-  } else if (langClause !== null) {
-    line += ` ${langClause}`;
-  } else if (domainClause !== null) {
-    line += ` ${domainClause}`;
-  }
-  line += '.';
-  out.push(line);
-  out.push('');
-  return out;
-}
-
-function formatPrimaryListClause(items: string[], preposition: string): string | null {
-  // Up to two items joined with "and"; preserves the schema order which the
-  // builder has already sorted deterministically.
-  const trimmed = items.filter((s) => s.trim().length > 0).slice(0, 2);
-  if (trimmed.length === 0) return null;
-  if (trimmed.length === 1) return `${preposition} ${trimmed[0]}`;
-  return `${preposition} ${trimmed[0]} and ${trimmed[1]}`;
+  // The builder's `entry.summary` already carries repo count + top languages
+  // + top domains in one factual sentence. Emitting only that avoids the
+  // duplicated "Created N repos…" / "Created N repositories…" pair that v0.4.0
+  // shipped with.
+  return [`**${entry.year}**: ${entry.summary}`, ''];
 }
 
 function renderUniProject(project: ProjectCaseStudy): string[] {
@@ -263,33 +254,30 @@ function renderSelfDirectedScope(uni: UniSummary): string {
   const shareClause =
     sharePct === 100 ? 'all of which are open-source' : `of which ${sharePct}% are open-source`;
 
-  let line = `I've worked across ${total} public ${repoNoun}, ${shareClause}.`;
+  // Two facts, two sentences. v0.4.0 welded them into one parenthetical, which
+  // implied longest-sustained and most-starred were the same repo — they're
+  // typically not.
+  const sentences: string[] = [`I've worked across ${total} public ${repoNoun}, ${shareClause}.`];
 
-  // Longest project + most-starred sentence. Skip cleanly when the schema
-  // has no most-starred name (empty profile case).
-  if (scope.longestProjectMonths > 0 || scope.mostStarredRepo.length > 0) {
-    let tail = '';
-    if (scope.longestProjectMonths > 0) {
-      const monthNoun = pluralize(scope.longestProjectMonths, 'month', 'months');
-      tail += ` My longest sustained project ran for ${scope.longestProjectMonths} ${monthNoun}`;
-    }
-    if (scope.mostStarredRepo.length > 0) {
-      const starredStarCount = findStarsForRepo(uni.topProjects, scope.mostStarredRepo);
-      const starredFragment =
-        starredStarCount !== null
-          ? `${scope.mostStarredRepo} is my most-starred repository at ${starredStarCount} ${pluralize(starredStarCount, 'star', 'stars')}`
-          : `${scope.mostStarredRepo} is my most-starred repository`;
-      if (tail.length > 0) {
-        tail += ` (${starredFragment})`;
-      } else {
-        tail += ` ${capitalizeFirst(starredFragment)}`;
-      }
-    }
-    tail += '.';
-    line += tail;
+  if (scope.longestProjectMonths > 0) {
+    const monthNoun = pluralize(scope.longestProjectMonths, 'month', 'months');
+    sentences.push(
+      `My longest sustained project ran for ${scope.longestProjectMonths} ${monthNoun}.`,
+    );
   }
 
-  return line;
+  if (scope.mostStarredRepo.length > 0) {
+    const starredStarCount = findStarsForRepo(uni.topProjects, scope.mostStarredRepo);
+    if (starredStarCount !== null && starredStarCount > 0) {
+      sentences.push(
+        `My most-starred repository is ${scope.mostStarredRepo} at ${starredStarCount} ${pluralize(starredStarCount, 'star', 'stars')}.`,
+      );
+    } else {
+      sentences.push(`My most-starred repository is ${scope.mostStarredRepo}.`);
+    }
+  }
+
+  return sentences.join(' ');
 }
 
 function findStarsForRepo(projects: ProjectCaseStudy[], nameWithOwner: string): number | null {

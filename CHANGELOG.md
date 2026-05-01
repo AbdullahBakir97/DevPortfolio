@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] — 2026-05-01
+
+Output-quality fixes for the v0.4.0 summary renderers, found by reading the actual rendered Markdown against `AbdullahBakir97`'s real history. v0.4.0 shipped the scaffolding correctly; v0.4.1 makes the output read like a clean draft instead of a near-clean one.
+
+### Fixed
+- **University opening sentence used the entire headline string as a noun phrase.** v0.4.0 produced gibberish like `"I'm a aspiring backend engineer · Python, TypeScript · 85 public repos · 241 commits with 85 public repositories on GitHub spanning backend and ml."` Now the renderer extracts only the role-noun (the segment before the first ` · `), and uses correct article inflection (`an aspiring backend engineer`, not `a aspiring`).
+- **University year ranges showed only the last-push year** (`(2026)` for a 36-month-old repo). The builder now uses `repo.createdAt` as `firstPushDate` (proxy for "first activity"), and the renderer formats as `(2023–2026)` when start ≠ end year. v0.5 may swap in real first-commit dates from REST.
+- **University learning-trajectory entries duplicated the year sentence** — the builder's `summary` already says "Created N repos primarily in X and Y, focused on A and B," but the renderer added a near-identical `"Created N repositories…"` second sentence. The renderer now emits only the builder's canonical sentence.
+- **Self-directed-scope paragraph welded `longestProjectMonths` and `mostStarredRepo` into one parenthetical**, making them look like the same repo (they're typically not). Now rendered as two separate sentences with explicit subjects.
+- **`Jupyter Notebook` and `Roff` no longer appear as skills.** GitHub returns these as "languages" but they're file formats / man-page markup, not engineering skills. Added a `SKILL_DENYLIST` in the builder.
+
+### Notes
+- This is a pure rendering / data-shape fix. No new inputs, outputs, or modes. Identical input always produces different (better) output than v0.4.0.
+- Discovery method: ran v0.4.0's dogfood against `AbdullahBakir97`, opened the resulting `summary-cv.md` and `summary-uni.md`, read them as a human reviewer. The bugs were all visible at first read. Worth recording as a v0.4 lesson: "shipped scaffolding correctly" ≠ "shipped useful output" — always read the rendered artifact, not just the test snapshots.
+
 ## [0.4.0] — 2026-05-01
 
 Application-ready summaries. The original use case behind PortfolioCraft was: *"I needed a summary of my projects so I can edit my CV and write university applications."* v0.4 ships that, end-to-end. Additive — every existing v0.1+v0.2+v0.3 workflow continues unchanged.
@@ -146,6 +161,7 @@ Initial release.
 ### Security
 - Action requests minimum scopes: `public_repo` and `read:user`. No data leaves the runner.
 
+[0.4.1]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.4.1
 [0.4.0]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.4.0
 [0.3.2]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.3.2
 [0.3.1]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.3.1

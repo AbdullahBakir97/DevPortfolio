@@ -126,7 +126,10 @@ export function buildProjectCaseStudy(
     stargazerCount: repo.stargazerCount,
     forkCount: repo.forkCount,
     estimatedDurationMonths: Math.max(1, months),
-    firstPushDate: repo.pushedAt,
+    // v0.4 uses repo.createdAt as a proxy for "first activity" — close enough
+    // to first-commit for personal repos. v0.5 may swap in real first-commit
+    // dates from a REST query.
+    firstPushDate: repo.createdAt,
     lastPushDate: repo.pushedAt,
     isPinned: repo.isPinned,
     isArchived: repo.isArchived,
@@ -162,6 +165,10 @@ function buildActivity(report: PortfolioReport): SummaryActivity {
   };
 }
 
+// File-format-style "languages" GitHub returns that don't represent a real
+// engineering skill on a CV. Filtered from every skills tier.
+const SKILL_DENYLIST = new Set<string>(['Jupyter Notebook', 'Roff']);
+
 function buildSkills(stack: StackEntry[]): SummarySkills {
   const strong: string[] = [];
   const working: string[] = [];
@@ -169,6 +176,7 @@ function buildSkills(stack: StackEntry[]): SummarySkills {
   // `report.stack` is already sorted by descending score (see scoreStack), so
   // a simple in-order push preserves the most-relevant entries when we cap.
   for (const entry of stack) {
+    if (SKILL_DENYLIST.has(entry.language)) continue;
     if (entry.tier === 'expert' && strong.length < SKILLS_CAP) {
       strong.push(entry.language);
     } else if (entry.tier === 'proficient' && working.length < SKILLS_CAP) {
