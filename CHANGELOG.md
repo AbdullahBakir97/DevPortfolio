@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] — 2026-05-01
+
+### Fixed
+- **Per-project intro article inflection** in the university summary. v0.4.1 fixed `"I'm a aspiring..."` → `"I'm an aspiring..."` on the opening line, but didn't generalize the helper. Per-project intros were still emitting `"A active ml project"` and `"A archived backend project"` for repos with vowel-starting `recencyBucket`. Now uses `startsWithVowelSound` consistently. Result: `"An active ml project built primarily in Python..."`.
+- Fixed pre-existing biome 2 lint errors in `packages/core/test/summary/build.test.ts` (non-null assertions on indexed access). Replaced `repos[N]!` with explicit destructuring + a single guard. No behavior change; biome's lint cache had been hiding these on prior CI runs.
+
+### Notes
+- Pattern repeating from v0.4.0 → v0.4.1: fix article inflection at one site, find another site that needed the same helper. Worth recording: when a prose-formatting helper is needed in one place, search the whole renderer module for every other place that touches the same shape of output.
+
 ## [0.4.1] — 2026-05-01
 
 Output-quality fixes for the v0.4.0 summary renderers, found by reading the actual rendered Markdown against `AbdullahBakir97`'s real history. v0.4.0 shipped the scaffolding correctly; v0.4.1 makes the output read like a clean draft instead of a near-clean one.
@@ -161,6 +170,7 @@ Initial release.
 ### Security
 - Action requests minimum scopes: `public_repo` and `read:user`. No data leaves the runner.
 
+[0.4.2]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.4.2
 [0.4.1]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.4.1
 [0.4.0]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.4.0
 [0.3.2]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.3.2

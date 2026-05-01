@@ -91,13 +91,17 @@ describe('buildCvSummary', () => {
         url: `https://github.com/octolearn/r${i}`,
       }),
     );
+    const [r0, r1, r2, r3, r4, r5] = repos;
+    if (!r0 || !r1 || !r2 || !r3 || !r4 || !r5) {
+      throw new Error('test setup: expected 6 repos');
+    }
     const projects: ProjectEntry[] = [
-      { repository: repos[0]!, significance: 0.9, domain: 'backend', reasons: [] },
-      { repository: repos[1]!, significance: 0.8, domain: 'backend', reasons: [] },
-      { repository: repos[2]!, significance: 0.7, domain: 'backend', reasons: [] },
-      { repository: repos[3]!, significance: 0.6, domain: 'frontend', reasons: [] },
-      { repository: repos[4]!, significance: 0.5, domain: 'devops', reasons: [] },
-      { repository: repos[5]!, significance: 0.4, domain: 'ml', reasons: [] },
+      { repository: r0, significance: 0.9, domain: 'backend', reasons: [] },
+      { repository: r1, significance: 0.8, domain: 'backend', reasons: [] },
+      { repository: r2, significance: 0.7, domain: 'backend', reasons: [] },
+      { repository: r3, significance: 0.6, domain: 'frontend', reasons: [] },
+      { repository: r4, significance: 0.5, domain: 'devops', reasons: [] },
+      { repository: r5, significance: 0.4, domain: 'ml', reasons: [] },
     ];
     const cv = buildCvSummary(summaryReport({ repos, projects }), { now: NOW, projectsMax: 6 });
     // backend (3) first, then devops/frontend/ml (1 each) alphabetically.

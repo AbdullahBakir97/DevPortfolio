@@ -1,6 +1,6 @@
 {
   "name": "@portfoliocraft/renderers",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Markdown, JSON Resume, PDF, and SVG renderers for PortfolioCraft.",
   "license": "Apache-2.0",
   "type": "module",

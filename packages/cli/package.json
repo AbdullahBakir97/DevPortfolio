@@ -1,6 +1,6 @@
 {
   "name": "portfoliocraft",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Generate a living portfolio (README sections, JSON Resume, PDF CV, SVG cards) from your GitHub activity.",
   "license": "Apache-2.0",
   "type": "module",
