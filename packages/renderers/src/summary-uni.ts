@@ -178,7 +178,12 @@ function renderUniProject(project: ProjectCaseStudy): string[] {
   const months = project.estimatedDurationMonths;
   const monthNoun = pluralize(months, 'month', 'months');
 
-  let lead = `A ${project.recencyBucket} ${project.domain} project`;
+  // Article inflection: "an active backend project" not "a active backend
+  // project". The next word after the article is recencyBucket, which can
+  // start with a vowel ('active', 'archived'). startsWithVowelSound covers
+  // both safely. Same helper used in renderOpening for the same reason.
+  const article = startsWithVowelSound(project.recencyBucket) ? 'An' : 'A';
+  let lead = `${article} ${project.recencyBucket} ${project.domain} project`;
   if (lang !== null) {
     lead += ` built primarily in ${lang}`;
   }
