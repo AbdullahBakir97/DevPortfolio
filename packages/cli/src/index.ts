@@ -36,7 +36,7 @@ const program = new Command();
 program
   .name('portfoliocraft')
   .description('Generate a living portfolio from your GitHub activity')
-  .version('0.4.2');
+  .version('0.4.3');
 
 program
   .command('generate')

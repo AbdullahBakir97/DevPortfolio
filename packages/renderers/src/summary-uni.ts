@@ -1,8 +1,10 @@
-import type {
-  LearningTrajectoryEntry,
-  ProjectCaseStudy,
-  TechnicalDepthEntry,
-  UniSummary,
+import {
+  DOMAIN_DISPLAY,
+  DOMAIN_TITLE,
+  type LearningTrajectoryEntry,
+  type ProjectCaseStudy,
+  type TechnicalDepthEntry,
+  type UniSummary,
 } from '@portfoliocraft/core';
 
 /**
@@ -183,7 +185,10 @@ function renderUniProject(project: ProjectCaseStudy): string[] {
   // start with a vowel ('active', 'archived'). startsWithVowelSound covers
   // both safely. Same helper used in renderOpening for the same reason.
   const article = startsWithVowelSound(project.recencyBucket) ? 'An' : 'A';
-  let lead = `${article} ${project.recencyBucket} ${project.domain} project`;
+  // Use DOMAIN_DISPLAY (lowercase phrase: 'machine-learning', 'DevOps') so the
+  // raw enum value never leaks into prose ('ml', 'devops').
+  const domainPhrase = DOMAIN_DISPLAY[project.domain];
+  let lead = `${article} ${project.recencyBucket} ${domainPhrase} project`;
   if (lang !== null) {
     lead += ` built primarily in ${lang}`;
   }
@@ -245,7 +250,9 @@ function extractYear(iso: string): string | null {
 
 function renderTechnicalDepthEntry(entry: TechnicalDepthEntry): string {
   const repoNoun = pluralize(entry.repos, 'repository', 'repositories');
-  const domainLabel = capitalizeFirst(entry.domain);
+  // DOMAIN_TITLE handles acronyms ('ML', 'DevOps') correctly — capitalizeFirst
+  // would have produced 'Ml' / 'Devops'.
+  const domainLabel = DOMAIN_TITLE[entry.domain];
   return `**${domainLabel}** (${entry.repos} ${repoNoun}): ${entry.summary}`;
 }
 
@@ -294,11 +301,6 @@ function findStarsForRepo(projects: ProjectCaseStudy[], nameWithOwner: string): 
 
 function pluralize(n: number, singular: string, plural: string): string {
   return n === 1 ? singular : plural;
-}
-
-function capitalizeFirst(s: string): string {
-  if (s.length === 0) return s;
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function stripBulletPrefix(text: string): string {

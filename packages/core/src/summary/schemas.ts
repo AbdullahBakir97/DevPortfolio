@@ -126,7 +126,10 @@ export const LearningTrajectoryEntry = z.object({
 export type LearningTrajectoryEntry = z.infer<typeof LearningTrajectoryEntry>;
 
 export const TechnicalDepthEntry = z.object({
-  domain: z.string(),
+  // Tightened from z.string() in v0.4.3 — the builder only emits Domain enum
+  // values, so renderers can safely index DOMAIN_TITLE / DOMAIN_DISPLAY without
+  // a runtime fallback.
+  domain: Domain,
   repos: z.number().int().nonnegative(),
   primaryLanguages: z.array(z.string()).default([]),
   summary: z.string(),

@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] — 2026-05-01
+
+### Fixed
+- **Domain-enum values were leaking directly into prose** in 4 sites: technical-depth heading (`**Ml**`), technical-depth sentence (`2 ml projects`), per-project intro (`An active ml project`), and case-studies overview fallback (`A ml project in Python`). Centralised via two new exported maps in `@portfoliocraft/core`:
+  - `DOMAIN_DISPLAY` — lowercase phrase form for mid-sentence prose: `'machine-learning'`, `'DevOps'`, `'backend'`, etc.
+  - `DOMAIN_TITLE` — Title-Case form for headings: `'Machine Learning'`, `'DevOps'`, `'Backend'`, etc.
+- **Tightened `TechnicalDepthEntry.domain`** schema from `z.string()` to the existing `Domain` enum so renderers can safely index the maps without runtime fallback. The builder always emitted enum values; the schema was looser than the data.
+- Removed the now-dead `capitalizeFirst` helper in `summary-uni.ts`.
+
+### Notes
+- Pattern recorded: when a prose-rendering bug appears in one site, audit the **whole renderer module** for sibling sites that share the same shape. v0.4.0 had bugs the v0.4.1 patch missed because the patch was localized; v0.4.1 → v0.4.2 → v0.4.3 has been a chain of catch-up. v0.4.3's fix is centralised so the next "an X" or "title-case domain" need never reopens.
+- Read-the-rendered-output gate caught these. None were caught by the 138 unit tests, the lint gate, or CodeQL — they were structurally correct, just embarrassing to read.
+
 ## [0.4.2] — 2026-05-01
 
 ### Fixed
@@ -170,6 +183,7 @@ Initial release.
 ### Security
 - Action requests minimum scopes: `public_repo` and `read:user`. No data leaves the runner.
 
+[0.4.3]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.4.3
 [0.4.2]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.4.2
 [0.4.1]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.4.1
 [0.4.0]: https://github.com/AbdullahBakir97/PortfolioCraft/releases/tag/v0.4.0
